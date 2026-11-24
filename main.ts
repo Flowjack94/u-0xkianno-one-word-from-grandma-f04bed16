@@ -24,6 +24,21 @@ import { mkdirSync, writeFileSync } from "node:fs";
 
 const WORD = "witchcraft";
 
+// Competition gate: the entry word must be 1–30 characters, a single
+// line with no whitespace, and survive a UTF-8 round-trip intact.
+const WORD_MAX_LENGTH = 30;
+if (WORD.length < 1 || WORD.length > WORD_MAX_LENGTH) {
+  throw new Error(
+    `entry word must be 1–${WORD_MAX_LENGTH} characters, got ${WORD.length}`,
+  );
+}
+if (/\s/.test(WORD) || WORD.includes("\n") || WORD.includes("\r")) {
+  throw new Error("entry word must be a single line with no whitespace");
+}
+if (new TextDecoder("utf-8").decode(new TextEncoder().encode(WORD)) !== WORD) {
+  throw new Error("entry word did not survive a UTF-8 round-trip");
+}
+
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", WORD, "utf8");
 
